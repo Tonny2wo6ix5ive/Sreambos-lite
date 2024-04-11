@@ -29,6 +29,7 @@ function Home() {
                         'runRenderingContext',
                         'drawWebView',
                         'clearWebView',
+                        'getRunningContext'
                     ]
                 })
 
@@ -37,9 +38,7 @@ function Home() {
 
                 // auto redirect
                 const data = await zoomSdk.getRunningContext();
-                if (data.context == "inMainClient") { // in side bar
-                    navigate('/zoom')
-                } else if (data.context == "inMeeting") {
+                if (data.context == "inCamera") {
                     navigate('/zoom')
                 }
                 console.log(configResponse)
@@ -120,7 +119,7 @@ function Home() {
             y: 10,
             width: 1280,
             height: 720,
-            zIndex: 2
+            zIndex: 2,
         })
         console.log(draw)
     }
