@@ -23,7 +23,7 @@ function App() {
           "clearImage"
         ]
       })
-
+      await zoomSdk.runRenderingContext({ view: "camera" });
       console.log(configResponse)
     }
     configureApp();
