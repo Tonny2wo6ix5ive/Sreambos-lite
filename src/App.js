@@ -11,22 +11,32 @@ function App() {
   const [zoomImageID, SetZoomImageID] = useState("");
   const [color, UseColor] = useState('')
 
-  useEffect(() => {
-    async function configureApp() {
-      const configResponse = await zoomSdk.config({
-        popoutSize: { width: 1280, height: 720 },
-        size:{
-          width: 1280, height: 720 
-        },
-        capabilities: [
-          "drawImage", 
-          "clearImage"
-        ]
-      })
 
-      console.log(configResponse)
+  useEffect(() => {
+    try{
+      async function configureApp() {
+        const configResponse = await zoomSdk.config({
+          popoutSize: { width: 1280, height: 720 },
+          size:{
+            width: 1280, height: 720 
+          },
+          capabilities: [
+            "drawImage", 
+            "clearImage",
+            'runRenderingContext',
+          ]
+        })
+  
+        await zoomSdk.runRenderingContext({ view: "camera" });
+        console.log(configResponse)
+      }
+      configureApp();
+      
+    }catch(err){
+      console.log(err)
     }
-    configureApp();
+    
+   
   }, [])
 
   const xx = (event) => {
@@ -65,7 +75,7 @@ function App() {
     // Draws an image in the rendering context's canvas.
     const data = await zoomSdk.drawImage({
       imageData: imageData,
-      x: 0, y: 0, zIndex: 3
+      x: x, y: y, zIndex: 3
     })
 
     SetZoomImageID(data.imageId)
@@ -78,9 +88,13 @@ function App() {
     ctx.clearRect(0, 0, 1280, 720)
 
     // Clears the content set by drawImage.
+   try{
     zoomSdk.clearImage({
       imageId: zoomImageID
     })
+   }catch(err){
+    console.log(err)
+   }
     SetZoomImageID("");
 
   }
