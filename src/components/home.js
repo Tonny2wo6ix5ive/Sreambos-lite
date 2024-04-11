@@ -37,9 +37,9 @@ function Home() {
 
                 // auto redirect
                 const data = await zoomSdk.getRunningContext();
-                if (data.context == "inMeeting") { // in side bar
-
-                } else if (data.context == "inMainClient") {
+                if (data.context == "inMainClient") { // in side bar
+                    navigate('/zoom')
+                } else if (data.context == "inMeeting") {
                     navigate('/zoom')
                 }
                 console.log(configResponse)
