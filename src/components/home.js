@@ -6,6 +6,7 @@ import Zoom from "./zoom";
 
 function Home() {
 
+    const [postmessage, UsePostMessage] = useState("") 
     const [x, UseX] = useState(null);
     const [y, UseY] = useState(null);
     const [w, UseW] = useState(null);
@@ -29,28 +30,50 @@ function Home() {
                         'runRenderingContext',
                         'drawWebView',
                         'clearWebView',
-                        'getRunningContext'
+                        'getRunningContext',
+                        'onMessage',
+                        'postMessage',
                     ]
                 })
 
-                await zoomSdk.runRenderingContext({ view: "camera" });
-
-
+                
                 // auto redirect
                 const data = await zoomSdk.getRunningContext();
-                if (data.context == "inCamera") {
-                    navigate('/zoom')
+                if (data.context === "inCamera") {
+                    // navigate('/zoom')
+                    navigate('/zoom');
+                }else{
+                    await zoomSdk.runRenderingContext({ view: "camera" });
+ 
                 }
+    
                 console.log(configResponse)
             } catch (err) {
                 console.log(err)
             }
-
-            
         }
         configureApp();
 
     }, [])
+    
+    //getting a message from text area
+    const postM = (event) =>{
+        UsePostMessage(event.target.value)
+    }
+    console.log(postmessage)
+
+    //posting message
+    const postFunc = async () => {
+        try {
+            await zoomSdk.postMessage({"message":postmessage, 'color':color});
+           console.log("New Message", postmessage, color);
+        } catch (error) {
+            console.error('Error posting message:', error);
+        }
+    };
+
+    
+    console.log(postmessage)
 
     const xx = (event) => {
         UseX(event.target.value)
@@ -74,6 +97,7 @@ function Home() {
 
     console.log(x, y, w, h)
 
+    // For drawing canvas on last div
     const draw = async () => {
         const canvas = document.getElementById('canvas')
         const ctx = canvas.getContext('2d');
@@ -114,20 +138,28 @@ function Home() {
 
     const drawWebView = async () => {
 
-        const draw = await zoomSdk.drawWebView({
-            x: 10,
-            y: 10,
-            width: 1280,
-            height: 720,
-            zIndex: 2,
-        })
-        console.log(draw)
+        try {
+            // Draw the web view within the camera view
+            const draw = await zoomSdk.drawWebView({
+                x: 0, 
+                y: 0,
+                width: 1280,
+                height: 720,
+                zIndex: 2,
+            });
+            
+            console.log(draw);
+        } catch (error) {
+            console.error('Error drawing web view:', error);
+        }
+        
     }
 
     const clearWebView = async () => {
         const clears = await zoomSdk.clearWebView()
         console.log(clears)
     }
+    
 
     return (
         <div className="App">
@@ -142,7 +174,7 @@ function Home() {
 
                 <div className="text-center">
 
-                    <h1 className="w-fit m-auto rounded-lg shadow-md border text-gray-50 p-2 bg-gray-800 my-6 text-4xl font-bold text-gray-700">
+                    <h1 className="w-fit m-auto rounded-lg shadow-md border text-gray-50 p-2 bg-gray-80 my-6 text-4xl font-bold text-gray-700">
                         Draw Rectangle
                     </h1>
 
@@ -161,6 +193,11 @@ function Home() {
                         <button onClick={clearCanvas} className="shadow-md hover:opacity-50 duration-200 px-4 rounded-md py-2 border bg-gray-700 text-gray-50 m-4" >Clear</button>
                         <button onClick={drawWebView} className='shadow-md hover:opacity-50 duration-200 px-4 rounded-md py-2 border bg-gray-700 text-gray-50' >Draw Web View</button>
                         <button onClick={clearWebView} className='shadow-md hover:opacity-50 duration-200 px-4 rounded-md py-2 border bg-gray-700 text-gray-50' >Clear Web View</button>
+
+                        <div className="flex justify-center my-6">
+                            <textarea onChange={postM} className="border-2"></textarea>
+                        <button  onClick={postFunc} className="shadow-md hover:opacity-50 duration-200 px-4 rounded-md py-2 border bg-gray-700 text-gray-50">Post</button>
+                        </div>
                     </div>
 
                     <div className="w-auto border-4 border-gray-700 shadow-md rounded-md h-fit bg-gray-100 m-2 ">
